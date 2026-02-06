@@ -1,0 +1,58 @@
+name: Re Build Articles
+
+on:
+  workflow_dispatch:
+    inputs:
+      input_json:
+        description: "リライト用 input.json（JSON文字列）"
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+      GMAIL_USER: ${{ secrets.GMAIL_USER }}
+      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install custom fonts
+        run: |
+          sudo mkdir -p /usr/share/fonts/truetype/custom
+          sudo cp fonts/ShipporiAntique-Regular.ttf /usr/share/fonts/truetype/custom/
+          sudo fc-cache -f -v
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      # ===============================
+      # input.json を生成
+      # ===============================
+      - name: Create input.json
+        run: |
+          echo '${{ inputs.input_json }}' > input.json
+          echo "📄 input.json created"
+          cat input.json
+
+      # ===============================
+      # 全自動リライト実行
+      # ===============================
+      - name: Run Re-Article Builder
+        run: |
+          echo "=== 🚀 リライト実行開始 ======================="
+          node runAll.js input.json
+          echo "=== ✅ リライト完了 ==========================="
