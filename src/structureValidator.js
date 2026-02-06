@@ -64,8 +64,8 @@ export function validateStructure(structure, keyword) {
 
   const errors = [];
 
-  const minH2 = 7;
-  const minH3 = 16;
+  const minH2 = 4;
+  const minH3 = 8;
 
   // h2数
   if (structure.length < minH2) {
