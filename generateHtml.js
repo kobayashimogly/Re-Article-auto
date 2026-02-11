@@ -100,11 +100,20 @@ function main() {
   const article = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
 
   let html = "";
-  const sections = article.sections || article;
 
-  sections.forEach(section => {
-    html += renderNode(section) + "\n";
-  });
+// ★ intro があれば、記事冒頭の本文として出力
+if (article.intro && article.intro.body) {
+  html += toParagraphs(article.intro.body) + "\n";
+}
+
+const sections = article.sections || [];
+
+sections.forEach(section => {
+  html += renderNode(section) + "\n";
+});
+
+
+  html = html.replace(/<p>。<\/p>\n?/g, "");
 
   // ③ 出力名は articleId 基準
   const mediaPrefix = input.media || "";
